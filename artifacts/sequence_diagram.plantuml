@@ -1,0 +1,25 @@
+@startuml sequence diagram
+autonumber
+autoactivate on
+
+actor User
+participant "Мобильное приложение" as MB
+participant API
+participant DB
+
+User -> MB : Клиент запросил список доступных моек
+alt Базовый сценарий
+MB -> API : GET Запрос ручки /api/city/100/washers
+API -> DB : Обращение к БД
+DB -> DB : Поиск моек по ID города
+API <-- DB : Выборка со списком моек
+API -> API : Формирование ответа со списком моек
+note right API
+Если не нашли мойки "washers": []
+end note
+MB <-- API : Ответ со списком моек
+User <-- MB : Отображает форму со списком моек
+else Ошибка сервера
+User <-- MB : Отображает ошибку на сервере
+end
+@enduml

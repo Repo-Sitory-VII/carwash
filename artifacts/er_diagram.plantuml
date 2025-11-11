@@ -1,0 +1,115 @@
+@startuml erd
+
+' skinparam linetype ortho
+' left to right direction
+
+entity "Клиент" as client {
+	*id: uuid
+	--
+	*first_name: string
+	*last_name: string
+	patronym: string
+	*phone_number: string
+}
+
+entity "Машина" as vehicle {
+	*id: uuid
+	--
+	*vin: string
+	*govNumber: string
+	*make: string
+	*model: string
+	*year: uint
+	*bodytype: string
+}
+
+entity "Клиент+Машина" as client_car {
+	*client_id: uuid
+	*vehicle_id: uuid
+	--
+}
+
+client::id||--|{client_car::client_id:Пользуется машинами
+vehicle::id||--|{client_car::vehicle_id:Используется клиентами
+
+entity "Мойка" as carwash {
+	*id: uuid
+	--
+	*city_id: uuid
+}
+
+entity "Бокс" as box {
+	*id: uint
+	--
+	*carwash_id: uuid
+}
+box::carwash_id}|--||carwash::id:Принадлежит
+
+entity "Слот" as timeslot {
+	*id: uuid
+	--
+	*box_id: uint
+	*timestamp: datetime
+}
+timeslot::box_id}|--||box::id:Закреплен за
+
+entity "Услуга" as service {
+	*id: uuid
+	--
+	*duration: time
+	*cost: money
+}
+
+entity "Мойка+Услуга" as carwash_service {
+	*carwash_id: uuid
+	*service_id: uuid
+	--
+}
+carwash_service::carwash_id}|--||carwash::id:Предоставляет
+carwash_service::service_id}|--||service::id:Предоставляется на
+
+
+entity "Должность" as position {
+	*id: uuid
+	--
+	*name: string
+}
+
+entity "Работник" as employee {
+	*id: uuid
+	--
+	*first_name: string
+	*last_name: string
+	patronym: string
+	*position_id: uuid
+}
+employee::position_id}|--||position::id:Находится на
+
+entity "Заказ" as order {
+	*id: uuid
+	--
+	*client_id: uuid
+	*vehicle_id: uuid
+	*timeslot_id: uuid
+}
+order::client_id}|--||client::id:Оформлен для
+order::vehicle_id}|--||vehicle::id:Выполняется для
+order::timeslot_id|o--||timeslot::id:Выполняется когда и где
+
+entity "Заказ+Работник" as order_employee {
+	*order_id: uuid
+	*employee_id: uuid
+	--
+}
+order_employee::order_id}|--||order::id:Выполняется кем
+order_employee::employee_id}|--||employee::Выполняет что
+
+entity "Заказ+Услуга" as order_service {
+	*order_id: uuid
+	*service_id: uuid
+	--
+}
+order_service::order_id}|--||order::id:Включает
+order_service::service_id}|--||service::id:Включена в
+
+@enduml
